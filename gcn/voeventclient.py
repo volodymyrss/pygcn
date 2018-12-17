@@ -111,7 +111,8 @@ def _recvall(sock, n, log):
         n -= nreceived
         mv = mv[nreceived:]
         n_part += 1
-        log.debug('received part %i of %i, total %i', n_part, nreceived, len(ba))
+        log.debug('received part %i of %i, total %i',
+                   n_part, nreceived, len(ba))
 
     if len(ba) != n_expected:
         log.error('expected %i, received: %i in %i parts', len(ba), n_expected, n_part)
@@ -231,7 +232,7 @@ def listen(host="68.169.57.253", port=8099,
         log = logging.getLogger('gcn.listen')
 
 
-    log.debug('listening on %s:%i',host,port)
+    log.debug('listening on %s:%i', host, port)
 
     while True:
         sock = _open_socket(host, port, iamalive_timeout,
