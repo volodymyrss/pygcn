@@ -94,6 +94,7 @@ def _recvall(sock, n, log):
     timeout = sock.gettimeout()
     start = monotonic()
 
+    n_part = 0
     while n > 0:
         if monotonic() - start > timeout:
             raise socket.timeout(
@@ -109,9 +110,11 @@ def _recvall(sock, n, log):
 
         n -= nreceived
         mv = mv[nreceived:]
+        n_part += 1
+        log.debug('received part %i of %i, total %i', n_part, nreceived, len(ba))
 
     if len(ba) != n_expected:
-        log.error('received: %i , expected %i', len(ba), n_expected)
+        log.error('expected %i, received: %i in %i parts', len(ba), n_expected, n_part)
         raise RuntimeError
     
     return bytes(ba)
