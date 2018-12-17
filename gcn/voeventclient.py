@@ -85,8 +85,10 @@ def _open_socket(host, port, iamalive_timeout, max_reconnect_timeout, log):
             return sock
 
 
-def _recvall(sock, n):
+def _recvall(sock, n, log):
     """Read exactly n bytes from a socket and return as a buffer."""
+
+    n_expected = n
     ba = bytearray(n)
     mv = memoryview(ba)
     timeout = sock.gettimeout()
@@ -107,17 +109,24 @@ def _recvall(sock, n):
 
         n -= nreceived
         mv = mv[nreceived:]
+
+    if len(ba) != n_expected:
+        log.error('received: %i , expected %i', len(ba), n_expected)
+        raise RuntimeError
+    
     return bytes(ba)
 
 
-def _recv_packet(sock):
+def _recv_packet(sock, log):
     """Read a length-prefixed VOEvent Transport Protocol packet and return the
     payload."""
     # Receive and unpack size of payload to follow
-    payload_len, = _size_struct.unpack_from(_recvall(sock, _size_len))
+    payload_len, = _size_struct.unpack_from(_recvall(sock, _size_len, log))
+
+    log.debug("payload_len: %i", payload_len)
 
     # Receive payload
-    return _recvall(sock, payload_len)
+    return _recvall(sock, payload_len, log)
 
 
 def _send_packet(sock, payload):
@@ -147,7 +156,7 @@ def _ingest_packet(sock, ivorn, handler, log):
     the appropriate response and then calling the handler if the payload is a
     VOEvent."""
     # Receive payload
-    payload = _recv_packet(sock)
+    payload = _recv_packet(sock, log)
     log.debug("received packet of %d bytes", len(payload))
     log.debug("payload is:\n%s", payload)
 
@@ -218,6 +227,9 @@ def listen(host="68.169.57.253", port=8099,
     if log is None:
         log = logging.getLogger('gcn.listen')
 
+
+    log.debug('listening on %s:%i',host,port)
+
     while True:
         sock = _open_socket(host, port, iamalive_timeout,
                             max_reconnect_timeout, log)
@@ -259,7 +271,7 @@ def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
     try:
         sock.bind((host, port))
         log.info("bound to %s:%d", host, port)
-        sock.listen(0)
+        sock.listen(5)
         while True:
             conn, addr = sock.accept()
             log.info("connected to %s:%d", addr, port)

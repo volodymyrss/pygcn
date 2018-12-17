@@ -12,8 +12,7 @@ from ..handlers import include_notice_types
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger()
 
-payloads = [pkg_resources.resource_string(__name__, 'data/gbm_flt_pos.xml'),
-            pkg_resources.resource_string(__name__, 'data/kill_socket.xml')]
+test_payload = pkg_resources.resource_string(__name__, 'data/gbm_flt_pos_long.xml')
 
 
 def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
@@ -27,7 +26,7 @@ def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
     sock = socket.socket()
     try:
         sock.bind((host, port))
-        log.info("test server bound to %s:%d", host, port)
+        log.info("bound to %s:%d", host, port)
         sock.listen(5)
         for i in range(5):
             conn, addr = sock.accept()
@@ -53,41 +52,40 @@ def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
     finally:
         sock.close()
 
-
-class MessageCounter(object):
+class Validator(object):
 
     def __init__(self):
         self.count = 0
 
-    def __call__(self, *args):
+    def __call__(self, payload, root):
         self.count += 1
+        log.debug(root)
+        log.info("got %i expectde %i",len(payload), len(test_payload))
+        if len(payload) != len(test_payload):
+            raise RuntimeError
 
 
-def test_reconnect_after_kill():
+def test_validate_xml_transport():
     """Test that the client recovers if the server closes the connection."""
+
+    log.setLevel(logging.DEBUG)
+
     server_thread = threading.Thread(
-        group=None, target=serve, args=(payloads,),
+        group=None, target=serve, args=([test_payload,],),
         kwargs=dict(retransmit_timeout=0.1))
     server_thread.daemon = True
     server_thread.start()
 
-    handler = MessageCounter()
+    handler = Validator()
 
     # FIXME: workaround for https://bugs.python.org/issue3445,
     # fixed in Python 3.3
     handler.__name__ = ''
 
-    logger=logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-
     client_thread = threading.Thread(
         group=None, target=listen,
-        kwargs=dict(host='127.0.0.1', 
-                    max_reconnect_timeout=4,
-                    handler=include_notice_types(111)(handler),
-                    log=logger,           
-                    )
-        )
+        kwargs=dict(host='127.0.0.1', max_reconnect_timeout=4,
+                    handler=include_notice_types(111)(handler)))
     client_thread.daemon = True
     client_thread.start()
 
