@@ -77,15 +77,15 @@ def test_reconnect_after_kill():
     # fixed in Python 3.3
     handler.__name__ = ''
 
-    logger=logging.getLogger()
+    logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
     client_thread = threading.Thread(
         group=None, target=listen,
-        kwargs=dict(host='127.0.0.1', 
+        kwargs=dict(host='127.0.0.1',
                     max_reconnect_timeout=4,
                     handler=include_notice_types(111)(handler),
-                    log=logger,           
+                    log=logger,
                     )
         )
     client_thread.daemon = True

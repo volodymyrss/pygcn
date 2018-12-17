@@ -12,7 +12,8 @@ from ..handlers import include_notice_types
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger()
 
-test_payload = pkg_resources.resource_string(__name__, 'data/gbm_flt_pos_long.xml')
+test_payload = pkg_resources.resource_string(__name__,
+                                             'data/gbm_flt_pos_long.xml')
 
 
 def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
@@ -52,6 +53,7 @@ def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
     finally:
         sock.close()
 
+
 class Validator(object):
 
     def __init__(self):
@@ -60,7 +62,7 @@ class Validator(object):
     def __call__(self, payload, root):
         self.count += 1
         log.debug(root)
-        log.info("got %i expectde %i",len(payload), len(test_payload))
+        log.info("got %i expectde %i", len(payload), len(test_payload))
         if len(payload) != len(test_payload):
             raise RuntimeError
 
@@ -71,7 +73,7 @@ def test_validate_xml_transport():
     log.setLevel(logging.DEBUG)
 
     server_thread = threading.Thread(
-        group=None, target=serve, args=([test_payload,],),
+        group=None, target=serve, args=([test_payload], ),
         kwargs=dict(retransmit_timeout=0.1))
     server_thread.daemon = True
     server_thread.start()
