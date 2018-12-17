@@ -231,7 +231,6 @@ def listen(host="68.169.57.253", port=8099,
     if log is None:
         log = logging.getLogger('gcn.listen')
 
-
     log.debug('listening on %s:%i', host, port)
 
     while True:
