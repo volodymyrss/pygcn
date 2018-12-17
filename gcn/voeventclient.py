@@ -112,12 +112,8 @@ def _recvall(sock, n, log):
         mv = mv[nreceived:]
         n_part += 1
         log.debug('received part %i of %i, total %i',
-                   n_part, nreceived, len(ba))
+                  n_part, nreceived, len(ba))
 
-    if len(ba) != n_expected:
-        log.error('expected %i, received: %i in %i parts', len(ba), n_expected, n_part)
-        raise RuntimeError
-    
     return bytes(ba)
 
 
