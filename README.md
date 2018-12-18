@@ -2,6 +2,7 @@
 
 Anonymous VOEvent client for receiving GCN/TAN notices in XML format
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/61659ee3436c49f5ad718031739561ae)](https://app.codacy.com/app/vladimir.savchenko/pygcn?utm_source=github.com&utm_medium=referral&utm_content=volodymyrss/pygcn&utm_campaign=Badge_Grade_Settings)
 [![Build Status](https://travis-ci.org/lpsinger/pygcn.svg?branch=master)](https://travis-ci.org/lpsinger/pygcn)
 
 The [Gamma-ray Coordinates Network/Transient Astronomy Network (GCN/TAN)][1] is
