@@ -156,6 +156,8 @@ def _ingest_packet(sock, ivorn, handler, exception_handler, log):
     the appropriate response and then calling the handler if the payload is a
     VOEvent."""
     # Receive payload
+    log = log.getChild('_ingest_packet')
+
     payload = _recv_packet(sock, log)
     log.debug("received packet of %d bytes", len(payload))
     log.debug("payload is:\n%s", payload)
@@ -230,7 +232,9 @@ def listen(host="68.169.57.253", port=8099,
 
     Note that this function does not return."""
     if log is None:
-        log = logging.getLogger('gcn.listen')
+        log = logging.getLogger('gcn')
+    
+    log = log.getChild('listen')
 
     log.debug('listening on %s:%i', host, port)
 
@@ -270,6 +274,8 @@ def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
 
     if log is None:
         log = logging.getLogger('gcn.serve')
+
+    log = log.getChild('serve')
 
     sock = socket.socket()
     try:

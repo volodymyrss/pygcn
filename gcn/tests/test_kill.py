@@ -65,6 +65,9 @@ class MessageCounter(object):
 
 def test_reconnect_after_kill():
     """Test that the client recovers if the server closes the connection."""
+
+    time.sleep(5)
+
     server_thread = threading.Thread(
         group=None, target=serve, args=(payloads,),
         kwargs=dict(retransmit_timeout=0.1))
@@ -78,7 +81,6 @@ def test_reconnect_after_kill():
     handler.__name__ = ''
 
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
 
     client_thread = threading.Thread(
         group=None, target=listen,

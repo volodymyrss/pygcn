@@ -86,7 +86,7 @@ def test_validate_xml_transport():
 
     server_thread = threading.Thread(
         group=None, target=serve, args=([test_payload], ),
-        kwargs=dict(retransmit_timeout=0.1))
+        kwargs=dict(retransmit_timeout=0.1, port=8097))
     server_thread.daemon = True
     server_thread.start()
 
@@ -99,6 +99,7 @@ def test_validate_xml_transport():
     client_thread = threading.Thread(
         group=None, target=listen,
         kwargs=dict(host='127.0.0.1', max_reconnect_timeout=4,
+                    port=8097,
                     handler=include_notice_types(111)(handler)))
     client_thread.daemon = True
     client_thread.start()
@@ -110,13 +111,11 @@ def test_validate_xml_transport():
 def test_exceptions():
     """Test that the client recovers if the server closes the connection."""
 
-    log.setLevel(logging.DEBUG)
-
     truncated_payload = test_payload_short[:-20]
 
     server_thread = threading.Thread(
         group=None, target=serve, args=([truncated_payload], ),
-        kwargs=dict(retransmit_timeout=0.1))
+        kwargs=dict(retransmit_timeout=0.1, port=8098))
     server_thread.daemon = True
     server_thread.start()
 
@@ -130,6 +129,7 @@ def test_exceptions():
     client_thread = threading.Thread(
         group=None, target=listen,
         kwargs=dict(host='127.0.0.1', max_reconnect_timeout=4,
+                    port=8098,
                     handler=include_notice_types(111)(handler),
                     exception_handler=exception_handler))
     client_thread.daemon = True
