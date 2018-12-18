@@ -1,11 +1,19 @@
 sudo: false
 language: python
 python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
+- '2.7'
+- '3.4'
+- '3.5'
+- '3.6'
 before_install:
-  - pip install pytest-pep8
+- pip install pytest-pep8 pytest-cov codacy-coverage codecov
 install: python setup.py build
-script: python setup.py test --addopts='--pep8'
+script:
+- python setup.py test --addopts='--pep8 --cov=./'
+after_success:
+- coverage xml
+- python-codacy-coverage -r coverage.xml
+- codecov
+env:
+  global:
+    secure: YJKEps+5WdbnjZoweBeNGVVcFFhIN6be4hzUpoJ1iGxVfq4kun6qP3XaF0NTE5mBf5k/TgEWu6LrbZVKMkmp7s+6iRIIYhuftJz0ay2Q2+PNcUO4R6z3X8r+xipG+il0zLrqdmcLBvm6akwYE003rckrJxXDr0Z1+/eysU8qEJe7dOzadQYoPcamKXV5hQMj02Qro8AKbMu2AWjTGXKhmpQm9sjaeCBBZuBbNuLZ3Ihw1ja6XkCJ/c0hGaViqDfXFgugFEQ+RM8+10ReC7dNr2EMquoeBoe0qjzPxkErg2mCQQC94NX/9KXrVCnL4mNagwtBo1irYAsujcuaGmx0Dl8r7JjsEqHGZ7k6SSGIbaBQTKcZ6yNXnlwR+/tHdA9FT8ep6FLzAe/Q49AjoQu1mksmQ4224Xdad05PI6fyevEqYTEIfQAmGSI1Z3K50yxYE9k9mLeGT5NqFF8u+q3OKBm7k9dexJegRnhyc8/eyKT18Vw5r5yJgVFW4A936sOeihuOSrtz6vbZk8gwfHMe6l/VHcdk6Lp8X7do7iessWd3P+rkE55A2Bdh5joHW/rcDMXfHSWqg0KG2HMEx5EHQ8kQofZ6XWwk9xW7Ss4kKcJ1krN2mhuGNAhm97Wob4ld66sFLq1Ak941VkjHjjDh5jBPNY3Owk2Rn2qrRNeeWWI=
