@@ -14,6 +14,8 @@ log = logging.getLogger()
 
 test_payload = pkg_resources.resource_string(__name__,
                                              'data/gbm_flt_pos_long.xml')
+test_payload_short = pkg_resources.resource_string(__name__,
+                                             'data/gbm_flt_pos.xml')
 
 
 def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
@@ -53,6 +55,14 @@ def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
     finally:
         sock.close()
 
+class ExceptionStore(object):
+
+    def __init__(self):
+        self.exceptions = []
+
+    def __call__(self, payload, exception):
+        self.exceptions.append([payload,exception])
+        log.debug("stored exception %s",exception)
 
 class Validator(object):
 
@@ -62,7 +72,7 @@ class Validator(object):
     def __call__(self, payload, root):
         self.count += 1
         log.debug(root)
-        log.info("got %i expectde %i", len(payload), len(test_payload))
+        log.info("got %i expected %i", len(payload), len(test_payload))
         if len(payload) != len(test_payload):
             raise RuntimeError
 
@@ -93,3 +103,35 @@ def test_validate_xml_transport():
 
     time.sleep(5)
     assert handler.count == 5
+
+def test_exceptions():
+    """Test that the client recovers if the server closes the connection."""
+
+    log.setLevel(logging.DEBUG)
+
+    truncated_payload = test_payload_short[:-20]
+
+    server_thread = threading.Thread(
+        group=None, target=serve, args=([truncated_payload], ),
+        kwargs=dict(retransmit_timeout=0.1))
+    server_thread.daemon = True
+    server_thread.start()
+
+    handler = Validator()
+    exception_handler = ExceptionStore()
+
+    # FIXME: workaround for https://bugs.python.org/issue3445,
+    # fixed in Python 3.3
+    handler.__name__ = ''
+
+    client_thread = threading.Thread(
+        group=None, target=listen,
+        kwargs=dict(host='127.0.0.1', max_reconnect_timeout=4,
+                    handler=include_notice_types(111)(handler),
+                    exception_handler=exception_handler))
+    client_thread.daemon = True
+    client_thread.start()
+
+    time.sleep(5)
+    assert len(exception_handler.exceptions) == 5
+    log.debug(exception_handler.exceptions) 

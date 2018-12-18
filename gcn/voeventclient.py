@@ -151,7 +151,7 @@ def _form_response(role, origin, response, timestamp):
         '</TimeStamp></trn:Transport>').encode('UTF-8')
 
 
-def _ingest_packet(sock, ivorn, handler, log):
+def _ingest_packet(sock, ivorn, handler, exception_handler, log):
     """Ingest one VOEvent Transport Protocol packet and act on it, first sending
     the appropriate response and then calling the handler if the payload is a
     VOEvent."""
@@ -163,9 +163,12 @@ def _ingest_packet(sock, ivorn, handler, log):
     # Parse payload and act on it
     try:
         root = fromstring(payload)
-    except XMLSyntaxError:
+#exception_handler
+    except XMLSyntaxError as exception:
         log.exception("failed to parse XML, base64-encoded payload is:\n%s",
                       base64.b64encode(payload))
+        if exception_handler is not None:
+            exception_handler(payload, exception)
         raise
     else:
         if root.tag in _valid_vtp_root_tags:
@@ -202,7 +205,7 @@ def _ingest_packet(sock, ivorn, handler, log):
 
 def listen(host="68.169.57.253", port=8099,
            ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150,
-           max_reconnect_timeout=1024, handler=None, log=None):
+           max_reconnect_timeout=1024, handler=None, exception_handler=None, log=None):
     """Connect to a VOEvent Transport Protocol server on the given `host` and
     `port`, then listen for VOEvents until interrupted (i.e., by a keyboard
     interrupt, `SIGINTR`, or `SIGTERM`).
@@ -235,12 +238,12 @@ def listen(host="68.169.57.253", port=8099,
 
         try:
             while True:
-                _ingest_packet(sock, ivorn, handler, log)
+                _ingest_packet(sock, ivorn, handler, exception_handler, log)
         except socket.timeout:
             log.warn("timed out")
         except socket.error:
             log.exception("socket error")
-        except XMLSyntaxError:
+        except XMLSyntaxError as e:
             log.warn("XML syntax error")
         finally:
             try:
