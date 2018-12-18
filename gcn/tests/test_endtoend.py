@@ -15,7 +15,7 @@ log = logging.getLogger()
 test_payload = pkg_resources.resource_string(__name__,
                                              'data/gbm_flt_pos_long.xml')
 test_payload_short = pkg_resources.resource_string(__name__,
-                                             'data/gbm_flt_pos.xml')
+                                                   'data/gbm_flt_pos.xml')
 
 
 def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
@@ -55,14 +55,16 @@ def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
     finally:
         sock.close()
 
+
 class ExceptionStore(object):
 
     def __init__(self):
         self.exceptions = []
 
     def __call__(self, payload, exception):
-        self.exceptions.append([payload,exception])
-        log.debug("stored exception %s",exception)
+        self.exceptions.append([payload, exception])
+        log.debug("stored exception %s", exception)
+
 
 class Validator(object):
 
@@ -104,6 +106,7 @@ def test_validate_xml_transport():
     time.sleep(5)
     assert handler.count == 5
 
+
 def test_exceptions():
     """Test that the client recovers if the server closes the connection."""
 
@@ -134,4 +137,4 @@ def test_exceptions():
 
     time.sleep(5)
     assert len(exception_handler.exceptions) == 5
-    log.debug(exception_handler.exceptions) 
+    log.debug(exception_handler.exceptions)

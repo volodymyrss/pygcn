@@ -163,7 +163,7 @@ def _ingest_packet(sock, ivorn, handler, exception_handler, log):
     # Parse payload and act on it
     try:
         root = fromstring(payload)
-#exception_handler
+        # exception_handler
     except XMLSyntaxError as exception:
         log.exception("failed to parse XML, base64-encoded payload is:\n%s",
                       base64.b64encode(payload))
@@ -205,7 +205,9 @@ def _ingest_packet(sock, ivorn, handler, exception_handler, log):
 
 def listen(host="68.169.57.253", port=8099,
            ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150,
-           max_reconnect_timeout=1024, handler=None, exception_handler=None, log=None):
+           max_reconnect_timeout=1024,
+           handler=None, exception_handler=None,
+           log=None):
     """Connect to a VOEvent Transport Protocol server on the given `host` and
     `port`, then listen for VOEvents until interrupted (i.e., by a keyboard
     interrupt, `SIGINTR`, or `SIGTERM`).
