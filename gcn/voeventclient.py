@@ -165,11 +165,11 @@ def _ingest_packet(sock, ivorn, handler, exception_handler, log):
     # Parse payload and act on it
     try:
         root = fromstring(payload)
-        # exception_handler
     except XMLSyntaxError as exception:
         log.exception("failed to parse XML, base64-encoded payload is:\n%s",
                       base64.b64encode(payload))
         if exception_handler is not None:
+            log.info("found exception handler: %s",exception_handler)
             exception_handler(payload, exception)
         raise
     else:
