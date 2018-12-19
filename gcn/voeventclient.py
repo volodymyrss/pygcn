@@ -169,7 +169,7 @@ def _ingest_packet(sock, ivorn, handler, exception_handler, log):
         log.exception("failed to parse XML, base64-encoded payload is:\n%s",
                       base64.b64encode(payload))
         if exception_handler is not None:
-            log.info("found exception handler: %s",exception_handler)
+            log.info("found exception handler: %s", exception_handler)
             exception_handler(payload, exception)
         raise
     else:
