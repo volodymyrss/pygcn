@@ -1,0 +1,9 @@
+[Unit]
+Description=PyGCN service
+
+[Service]
+Nice=18
+ExecStart=pygcn-listen
+
+[Install]
+WantedBy=default.target
