@@ -35,7 +35,7 @@ for a in sys.argv:
     if a.startswith("--user"):
         user_install = True
 
-systemd_target_dir = "/usr/local/lib/systemd/user"
+systemd_target_dir = "/usr/lib/systemd/user"
 if user_install:
     systemd_target_dir = os.environ["HOME"] + "/.local/share/systemd/user"
 
