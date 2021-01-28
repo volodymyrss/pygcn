@@ -16,6 +16,7 @@
 
 import ast
 import sys
+import os
 
 from setuptools import setup
 import versioneer
@@ -29,8 +30,18 @@ with open('gcn/__init__.py') as f:
     mod = ast.parse(f.read())
 __doc__ = ast.get_docstring(mod)
 
+user_install = False
+for a in sys.argv:
+    if a.startswith("--user"):
+        user_install = True
+
+systemd_target_dir = "/usr/lib/systemd/user"
+if user_install:
+    systemd_target_dir = os.environ["HOME"] + "/.local/share/systemd/user"
+
 setup(description=__doc__.splitlines()[1],
       long_description=__doc__,
       setup_requires=setup_requires,
       version=versioneer.get_version(),
-      cmdclass=versioneer.get_cmdclass())
+      cmdclass=versioneer.get_cmdclass(),
+      data_files=[(systemd_target_dir , ["data/systemd/pygcn.service"])])
